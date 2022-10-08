@@ -1,77 +1,77 @@
 import React, { useContext, useState } from "react";
 import styled from 'styled-components';
-import {font4,Flex} from "./Common";
-import {FaPaperclip,FaImage} from 'react-icons/fa';
+import { Flex } from "./Common";
+import { FaPaperclip, FaImage } from 'react-icons/fa';
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
-import {arrayUnion,doc,serverTimestamp,Timestamp,updateDoc,} from "firebase/firestore";
+import { arrayUnion, doc, serverTimestamp, Timestamp, updateDoc, } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { v4 as uuid } from "uuid";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 const Textarea = () => {
-    const [text, setText] = useState("");
-    const [img, setImg] = useState(null);
-  
-    const { currentUser } = useContext(AuthContext);
-    const { data } = useContext(ChatContext);
-  
-    const handleSend = async () => {
-        console.log('clicked ho gya')
-      if (img) {
-        const storageRef = ref(storage, uuid());
-  
-        const uploadTask = uploadBytesResumable(storageRef, img);
-  
-        uploadTask.on(
-          (error) => {
-            //TODO:Handle Error
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-              await updateDoc(doc(db, "chats", data.chatId), {
-                messages: arrayUnion({
-                  id: uuid(),
-                  text,
-                  senderId: currentUser.uid,
-                  date: Timestamp.now(),
-                  img: downloadURL,
-                }),
-              });
-            });
-          }
-        );
-      } else {
-        await updateDoc(doc(db, "chats", data.chatId), {
-          messages: arrayUnion({
-            id: uuid(),
-            text,
-            senderId: currentUser.uid,
-            date: Timestamp.now(),
-          }),
-        });
-      }
-  
-      await updateDoc(doc(db, "userChats", currentUser.uid), {
-        [data.chatId + ".lastMessage"]: {
-          text,
-        },
-        [data.chatId + ".date"]: serverTimestamp(),
-      });
-  
-      await updateDoc(doc(db, "userChats", data.user.uid), {
-        [data.chatId + ".lastMessage"]: {
-          text,
-        },
-        [data.chatId + ".date"]: serverTimestamp(),
-      });
-  
-      setText("");
-      setImg(null);
-    };
+  const [text, setText] = useState("");
+  const [img, setImg] = useState(null);
 
-   
-    const Send=styled(Flex)`
+  const { currentUser } = useContext(AuthContext);
+  const { data } = useContext(ChatContext);
+
+  const handleSend = async () => {
+    console.log('clicked ho gya')
+    if (img) {
+      const storageRef = ref(storage, uuid());
+
+      const uploadTask = uploadBytesResumable(storageRef, img);
+
+      uploadTask.on(
+        (error) => {
+          //TODO:Handle Error
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            await updateDoc(doc(db, "chats", data.chatId), {
+              messages: arrayUnion({
+                id: uuid(),
+                text,
+                senderId: currentUser.uid,
+                date: Timestamp.now(),
+                img: downloadURL,
+              }),
+            });
+          });
+        }
+      );
+    } else {
+      await updateDoc(doc(db, "chats", data.chatId), {
+        messages: arrayUnion({
+          id: uuid(),
+          text,
+          senderId: currentUser.uid,
+          date: Timestamp.now(),
+        }),
+      });
+    }
+
+    await updateDoc(doc(db, "userChats", currentUser.uid), {
+      [data.chatId + ".lastMessage"]: {
+        text,
+      },
+      [data.chatId + ".date"]: serverTimestamp(),
+    });
+
+    await updateDoc(doc(db, "userChats", data.user.uid), {
+      [data.chatId + ".lastMessage"]: {
+        text,
+      },
+      [data.chatId + ".date"]: serverTimestamp(),
+    });
+
+    setText("");
+    setImg(null);
+  };
+
+
+  const Send = styled(Flex)`
     width: 30%;
     height: 100%;
     color: rgba(49, 53, 51, 0.712);
@@ -80,7 +80,7 @@ const Textarea = () => {
     justify-content: space-evenly;
     padding-right:1rem;
     `
-    const Button = styled.button`
+  const Button = styled.button`
     height: 80%;
     width: 30%;
     font-size: 2rem;
@@ -96,16 +96,16 @@ const Textarea = () => {
 
   return (
     <div className="Textarea">
-        <textarea id="textarea" className="Input" type='text' placeholder='Your message...' onChange={(e) => setText(e.target.value)}
+      <textarea id="textarea" className="Input" type='text' placeholder='Your message...' onChange={(e) => setText(e.target.value)}
         value={text}
-        />
-        <Send>
-            <span className="attach"><FaPaperclip/></span>
-            <input type="file" id="attach-image" style={{display:"none"}}  onChange={(e) => setImg(e.target.files[0])}/>
-            <label htmlFor="attach-image" style={{fontSize:"3.5rem",cursor:"pointer"}} ><FaImage/></label>
-            <Button onClick={handleSend}>Send</Button>
-        </Send>
-      </div>
+      />
+      <Send>
+        <span className="attach"><FaPaperclip /></span>
+        <input type="file" id="attach-image" style={{ display: "none" }} onChange={(e) => setImg(e.target.files[0])} />
+        <label htmlFor="attach-image" style={{ fontSize: "3.5rem", cursor: "pointer" }} ><FaImage /></label>
+        <Button onClick={handleSend}>Send</Button>
+      </Send>
+    </div>
   )
 }
 

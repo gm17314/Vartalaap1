@@ -3,7 +3,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import { AuthContext } from "../context/AuthContext";
 import styled from "styled-components";
-import { font3, font1, font2, Flex } from "./Common";
+import { font3, font1, Flex } from "./Common";
 
 const Navbar = () => {
   const { currentUser } = useContext(AuthContext);
