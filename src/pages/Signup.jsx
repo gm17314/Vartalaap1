@@ -137,7 +137,7 @@ const Signup = () => {
     <Signup>
       <Signupbox>
         <H2>
-          Welcome To Vartalaap
+          Welcome To Vartalaap Chats
           <br />
           🙏🙏🙏
         </H2>
